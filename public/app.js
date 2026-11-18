@@ -77,7 +77,12 @@ function render() {
   $('count').textContent = products.length;
   $('empty').hidden = !!products.length;
   $('empty').style.display = products.length ? 'none' : 'grid';
-  $('products').innerHTML = products.map((p, pi) => `<article class="product"><div class="producthead"><div><b>${esc(p.code)}</b><input aria-label="Handle for ${p.code}" data-handle="${pi}" value="${esc(p.handle)}"></div><div>${p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">Official source ↗</a>` : ''} <button data-remove="${pi}" aria-label="Remove product ${p.code}">×</button></div></div>${p.error ? `<div class="message">${esc(p.error)} <button data-retry="${pi}">Retry</button></div>` : ''}${regionalControls(p, pi)}<div class="gallery">${p.images.map((im, i) => `<div class="photo ${i === 0 ? 'hero' : ''}" draggable="true" data-product="${pi}" data-index="${i}"><img src="${esc(im.preview || im.url)}" alt="${p.code} ${i === 0 ? 'hero view' : 'Alt ' + i}" loading="lazy" data-p="${pi}" data-i="${i}"><div class="photofoot"><span>${i === 0 ? '01 / HERO' : String(i + 1).padStart(2, '0') + ' / ALT ' + i}</span><div><button data-move="${pi},${i},-1" aria-label="Move image left" ${i === 0 ? 'disabled' : ''}>‹</button> <button data-move="${pi},${i},1" aria-label="Move image right" ${i === p.images.length - 1 ? 'disabled' : ''}>›</button> <button data-delete="${pi},${i}" aria-label="Delete image">×</button></div></div></div>`).join('')}</div></article>`).join('');
+  $('products').innerHTML = products.map((p, pi) => `<article class="product"><div class="producthead"><div><b>${esc(p.code)}</b><input aria-label="Handle for ${p.code}" data-handle="${pi}" value="${esc(p.handle)}"></div><div>${p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">Official source ↗</a>` : ''} <button data-remove="${pi}" aria-label="Delete product ${p.code}">
+  <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6h18M9 6V4h6v2M5 6l1 15h12l1-15M10 10v7M14 10v7"/>
+  </svg>
+  Delete
+</button></div></div>${p.error ? `<div class="message">${esc(p.error)} <button data-retry="${pi}">Retry</button></div>` : ''}${regionalControls(p, pi)}<div class="gallery">${p.images.map((im, i) => `<div class="photo ${i === 0 ? 'hero' : ''}" draggable="true" data-product="${pi}" data-index="${i}"><img src="${esc(im.preview || im.url)}" alt="${p.code} ${i === 0 ? 'hero view' : 'Alt ' + i}" loading="lazy" data-p="${pi}" data-i="${i}"><div class="photofoot"><span>${i === 0 ? '01 / HERO' : String(i + 1).padStart(2, '0') + ' / ALT ' + i}</span><div><button data-move="${pi},${i},-1" aria-label="Move image left" ${i === 0 ? 'disabled' : ''}>‹</button> <button data-move="${pi},${i},1" aria-label="Move image right" ${i === p.images.length - 1 ? 'disabled' : ''}>›</button> <button data-delete="${pi},${i}" aria-label="Delete image">×</button></div></div></div>`).join('')}</div></article>`).join('');
   $('export-file').disabled = $('export').disabled = busy || !rows().length;
   $('preview').disabled = !rows().length;
 }
@@ -225,7 +230,7 @@ $('products').onchange = e => {
   }
 };
 $('products').onclick = async e => {
-  const d = e.target.dataset;
+  const d = e.target.closest('button')?.dataset || e.target.dataset;
   if (d.region) {
     const product = products[+d.item];
     const section = e.target.closest('details');
