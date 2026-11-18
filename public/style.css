@@ -618,9 +618,16 @@ textarea {
   color: white;
 }
 .producthead button[data-remove] {
-  background: #f44336\;
-  border-color: #b42318;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #d90010;
+  border-radius: 9px;
+  background: #d90010;
   color: #fff;
+  font-weight: 700;
 }
 
 .producthead button[data-remove]:hover:enabled {
