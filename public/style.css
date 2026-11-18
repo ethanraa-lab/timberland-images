@@ -275,7 +275,7 @@ textarea {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
-  background: #202620;
+  background: #f6f2ea;
   display:block;
 }
 .photofoot {
@@ -582,18 +582,19 @@ textarea {
 .gallery {
   padding: 16px;
   gap: 14px;
-  background: #24231f;
+  background: #e5dac7;
   grid-template-columns: repeat(auto-fill,minmax(min(175px,100%),1fr));
 }
 .photo {
-  background: #312f29;
-  border-color: #514c42;
+  background: #faf5eb;
+  border-color: #c5b79e;
   border-radius: 7px;
 }
 .photo.hero {
-  border-color: var(--wheat);
+  border-color: #946326;
 }
 .photofoot {
+  color: #413a30;
   gap: 4px;
   flex-wrap: wrap;
   padding: 9px;
@@ -603,17 +604,17 @@ textarea {
   letter-spacing: .07em;
 }
 .hero .photofoot span {
-  color: #ffcf89;
+  color: #785018;
 }
 .photofoot button {
   min-width: 30px;
   min-height: 30px;
-  background: #403d35;
-  color: #fff;
-  border-color: #666053;
+  background: #fffaf1;
+  color: #413a30;
+  border-color: #ac9d84;
 }
 .photofoot button:hover:enabled {
-  background: #625544;
+  background: #64563e;
   color: white;
 }
 .photofoot button[data-delete]:hover {
