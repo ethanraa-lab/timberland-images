@@ -617,6 +617,22 @@ textarea {
   background: #64563e;
   color: white;
 }
+.producthead button[data-remove] {
+  background: #b42318;
+  border-color: #b42318;
+  color: #fff;
+}
+
+.producthead button[data-remove]:hover:enabled {
+  background: #901c13;
+  border-color: #901c13;
+}
+
+.producthead button[data-remove]:focus-visible {
+  outline: 3px solid #901c13;
+  outline-offset: 3px;
+}
+
 .photofoot button[data-delete]:hover {
   background: #78473b;
 }
