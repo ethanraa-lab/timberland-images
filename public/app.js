@@ -24,6 +24,20 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({
   '"': '&quot;',
   "'": '&#39;'
 })[c]);
+const verifiedNames = {
+  TB010061713: "Men's Timberland® Premium 6-Inch Waterproof Boot",
+  TB0A2MDGALY: "Men's Field Boot"
+};
+
+function setProductName(product, name) {
+  product.name = name.trim();
+  if (!product.autoHandle) return;
+  const slug = product.name.normalize('NFKD').replace(/\p{M}/gu, '')
+    .toLowerCase().replace(/['’]/g, '').replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-|-$/g, '');
+  product.handle = [slug, product.code.toLowerCase()].filter(Boolean).join('-');
+}
+
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(products));
@@ -83,6 +97,7 @@ function render() {
         <div class="product-meta">
           <b>${esc(p.code)}</b>
           <span class="view-count">${p.images.length} ${p.images.length === 1 ? 'view' : 'views'}</span>
+          <label>Product name <input data-name="${pi}" value="${esc(p.name ?? verifiedNames[p.code] ?? '')}" placeholder="Enter product name"></label>
           <label>Handle <input data-handle="${pi}" value="${esc(p.handle)}"></label>
         </div>
         ${p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">Official source ↗</a>` : ''}
@@ -159,10 +174,14 @@ async function load(p, sample = false) {
     p.source = data.source;
     const imgs = await Promise.all(data.images.map(validateImage));
     p.images = imgs.filter(Boolean);
-    if (!p.images.length) {
+    if (!p.images.length || (!p.name && !location.hostname.endsWith('.github.io'))) {
       const results = await Promise.all(REGIONS.map(region => lookup(p, region)));
       const matches = results.filter(result => result.images.length);
-      p.images = matches.flatMap(result => result.images).filter((image, index, all) => all.findIndex(other => other.url === image.url) === index);
+      if (!p.name) {
+        const named = results.find(result => result.name);
+        if (named) setProductName(p, named.name);
+      }
+      if (!p.images.length) p.images = matches.flatMap(result => result.images).filter((image, index, all) => all.findIndex(other => other.url === image.url) === index);
       if (matches.length) p.source = matches[0].source;
     }
     if (!p.images.length) throw Error('No usable official photos loaded. Open Regional sources to try a store or paste an official product link.');
@@ -192,13 +211,15 @@ async function add(items) {
         invalid++;
         continue;
       }
-      if (products.some(p => p.code === code && p.handle === handle)) continue;
+      if (products.some(p => p.code === code && (p.handle === handle || (item.handle === undefined && p.autoHandle)))) continue;
       const p = {
         code,
         handle,
+        autoHandle: item.handle === undefined,
         images: [],
         error: ''
       };
+      setProductName(p, verifiedNames[code] || '');
       products.push(p);
       $('status').textContent = 'Finding official photos for ' + code + '…';
       render();
@@ -255,7 +276,14 @@ $('file').onchange = async e => {
   e.target.value = '';
 };
 $('products').onchange = e => {
+  if (e.target.dataset.name !== undefined) {
+    const product = products[+e.target.dataset.name];
+    setProductName(product, e.target.value);
+    e.target.closest('.product-meta').querySelector('[data-handle]').value = product.handle;
+    save();
+  }
   if (e.target.dataset.handle !== undefined) {
+    products[+e.target.dataset.handle].autoHandle = false;
     products[+e.target.dataset.handle].handle = e.target.value;
     save();
   }
@@ -270,6 +298,7 @@ $('products').onclick = async e => {
     status.textContent = 'Checking Timberland ' + d.region + '…';
     const result = await lookup(product, d.region, section.querySelector('input').value.trim());
     if (!products.includes(product)) return;
+    if (result.name && !product.name) setProductName(product, result.name);
     const added = result.images.filter(image => !product.images.some(existing => existing.url === image.url));
     product.images.push(...added);
     if (added.length) {
