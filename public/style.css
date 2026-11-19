@@ -621,13 +621,13 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   padding: 6px 10px;
   border: 1px solid #d90010;
   border-radius: 9px;
-  background: #d90010;
+  background: #c11b17;
   color: #fff;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .product button[data-remove]:hover:enabled {
