@@ -776,3 +776,10 @@ dialog {
   padding: 0;
   border: 0;
 }
+
+/* Product name and handle fields */
+.producthead .product-meta label,
+.producthead .product-meta input {
+  color: #171717;
+  font-weight: 700;
+}
