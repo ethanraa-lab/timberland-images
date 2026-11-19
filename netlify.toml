@@ -1,5 +1,6 @@
 [build]
-  publish = "public"
+  command = "mkdir -p dist && cp index.html dist/ && cp -R public dist/"
+  publish = "dist"
 [[headers]]
   for = "/*"
   [headers.values]
