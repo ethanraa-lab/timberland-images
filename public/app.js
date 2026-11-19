@@ -352,7 +352,7 @@ render();
 
 function enableSnoopyFollower() {
   const preference = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
-  const snoopy = new Image(36, 46);
+  const snoopy = new Image(28, 36);
   snoopy.src = './snoopy-heart.svg';
   snoopy.alt = '';
   snoopy.draggable = false;
@@ -370,8 +370,8 @@ function enableSnoopyFollower() {
       return;
     }
 
-    const x = event.clientX + 56 <= innerWidth ? event.clientX + 20 : event.clientX - 56;
-    const y = event.clientY + 66 <= innerHeight ? event.clientY + 20 : event.clientY - 66;
+    const x = event.clientX + snoopy.width + 20 <= innerWidth ? event.clientX + 20 : event.clientX - snoopy.width - 20;
+    const y = event.clientY + snoopy.height + 20 <= innerHeight ? event.clientY + 20 : event.clientY - snoopy.height - 20;
     snoopy.style.transform = `translate(${x}px, ${y}px)`;
     snoopy.hidden = false;
   });
