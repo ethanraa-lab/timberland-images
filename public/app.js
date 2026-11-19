@@ -29,6 +29,29 @@ const verifiedNames = {
   TB0A2MDGALY: "Men's Field Boot"
 };
 
+const nameIndex = fetch('./product-names.json')
+  .then(response => response.ok ? response.json() : {})
+  .catch(() => ({}));
+
+async function findStyleName(code) {
+  const known = verifiedNames[code] || (await nameIndex)[code];
+  if (known) return known;
+  for (const locale of ['en-us', 'en-gb']) {
+    try {
+      const url = 'https://www.timberland.com/api/products/v2/products/' + code + '/details?locale=' + locale;
+      const response = await fetch(url, { signal: AbortSignal.timeout(3500) });
+      if (!response.ok) continue;
+      const json = await response.json();
+      for (const item of [json, json.data, json.product, json.data?.product]) {
+        if (item?.id === code && typeof item.name === 'string' && item.name.trim()) return item.name.trim();
+      }
+    } catch {
+      // Some stores restrict cross-origin requests.
+    }
+  }
+  return '';
+}
+
 function setProductName(product, name) {
   product.name = name.trim();
   if (!product.autoHandle) return;
@@ -79,6 +102,19 @@ async function lookup(product, region, page = '') {
     };
   }
 }
+async function restoreMissingNames() {
+  for (const product of products.filter(item => !item.name)) {
+    const name = await findStyleName(product.code);
+    if (!name || product.name || !products.includes(product)) continue;
+    setProductName(product, name);
+    save();
+    const input = document.querySelector('[data-name="' + products.indexOf(product) + '"]');
+    if (input && document.activeElement !== input) input.value = name;
+    const handle = document.querySelector('[data-handle="' + products.indexOf(product) + '"]');
+    if (handle && document.activeElement !== handle) handle.value = product.handle;
+  }
+}
+
 function regionalControls(product, index) {
   return `<details class="regions"><summary>Regional sources · US / Europe / Japan</summary>
     <p>${REGIONS.map(region => `<a href="${SEARCH[region] + product.code}" target="_blank" rel="noopener">${region} store ↗</a>`).join(' · ')}</p>
@@ -97,7 +133,7 @@ function render() {
         <div class="product-meta">
           <b>${esc(p.code)}</b>
           <span class="view-count">${p.images.length} ${p.images.length === 1 ? 'view' : 'views'}</span>
-          <label>Product name <input data-name="${pi}" value="${esc(p.name ?? verifiedNames[p.code] ?? '')}" placeholder="Enter product name"></label>
+          <label>Product name <input data-name="${pi}" value="${esc(p.name ?? verifiedNames[p.code] ?? '')}" placeholder="Name unavailable · enter manually"></label>
           <label>Handle <input data-handle="${pi}" value="${esc(p.handle)}"></label>
         </div>
         ${p.source ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">Official source ↗</a>` : ''}
@@ -171,9 +207,12 @@ async function load(p, sample = false) {
         }))
       };
     }
+    const nameLookup = p.name ? Promise.resolve(p.name) : findStyleName(p.code);
     p.source = data.source;
     const imgs = await Promise.all(data.images.map(validateImage));
     p.images = imgs.filter(Boolean);
+    const foundName = await nameLookup;
+    if (!p.name && foundName) setProductName(p, foundName);
     if (!p.images.length || (!p.name && !location.hostname.endsWith('.github.io'))) {
       const results = await Promise.all(REGIONS.map(region => lookup(p, region)));
       const matches = results.filter(result => result.images.length);
@@ -447,3 +486,4 @@ function enableSnoopyFollower() {
 }
 
 enableSnoopyFollower();
+restoreMissingNames();
