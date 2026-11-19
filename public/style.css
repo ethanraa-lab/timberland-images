@@ -581,9 +581,9 @@ textarea {
 }
 .gallery {
   padding: 16px;
-  gap: 14px;
+  gap: 18px;
   background: #e5dac7;
-  grid-template-columns: repeat(auto-fill,minmax(min(175px,100%),1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(156px, 100%), 168px));
 }
 .photo {
   background: #faf5eb;
@@ -597,11 +597,11 @@ textarea {
   color: #413a30;
   gap: 4px;
   flex-wrap: wrap;
-  padding: 9px;
+  padding: 6px;
 }
 .photofoot span {
   font-weight: 700;
-  letter-spacing: .07em;
+  letter-spacing: .035em;
 }
 .hero .photofoot span {
   color: #785018;
