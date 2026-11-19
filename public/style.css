@@ -583,7 +583,7 @@ textarea {
   padding: 16px;
   gap: 18px;
   background: #e5dac7;
-  grid-template-columns: repeat(auto-fill, minmax(min(156px, 100%), 168px));
+  grid-template-columns: repeat(auto-fill, minmax(min(175px, 100%), 1fr));
 }
 .photo {
   background: #faf5eb;
