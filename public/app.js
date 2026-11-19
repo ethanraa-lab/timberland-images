@@ -349,3 +349,37 @@ $('export').onclick = () => {
   XLSX.writeFile(book, `Timberland_Images_${new Date().toISOString().slice(0, 10)}.xlsx`);
 };
 render();
+
+function enableSnoopyFollower() {
+  const preference = matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+  const snoopy = new Image(36, 46);
+  snoopy.src = './snoopy-heart.svg';
+  snoopy.alt = '';
+  snoopy.draggable = false;
+  snoopy.hidden = true;
+  snoopy.style.cssText = 'position:fixed;top:0;left:0;pointer-events:none;z-index:1000;transition:transform 90ms ease-out';
+  document.body.append(snoopy);
+
+  function hide() {
+    snoopy.hidden = true;
+  }
+
+  document.addEventListener('pointermove', event => {
+    if (!preference.matches || event.pointerType !== 'mouse' || event.buttons) {
+      hide();
+      return;
+    }
+
+    const x = event.clientX + 56 <= innerWidth ? event.clientX + 20 : event.clientX - 56;
+    const y = event.clientY + 66 <= innerHeight ? event.clientY + 20 : event.clientY - 66;
+    snoopy.style.transform = `translate(${x}px, ${y}px)`;
+    snoopy.hidden = false;
+  });
+  document.documentElement.addEventListener('pointerleave', hide);
+  document.addEventListener('pointerdown', hide);
+  document.addEventListener('dragstart', hide);
+  window.addEventListener('blur', hide);
+  preference.addEventListener('change', hide);
+}
+
+enableSnoopyFollower();
